@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register Company</title>
+</head>
+<body>
+  <h2>Register a New Company</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <label>Company Name:</label><br>
+    <input type="text" name="name" placeholder="ACME Inc." required><br><br>
+
+    <label>Subdomain:</label><br>
+    <input type="text" name="domain" placeholder="acme.yourdomain.com" required><br><br>
+
+    <button type="submit">Register</button>
+  </form>
+</body>
+</html>
