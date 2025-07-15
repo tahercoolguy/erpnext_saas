@@ -36,7 +36,7 @@ services:
   backend:
     build:
       context: ./erpnext
-      dockerfile: ./images/bench/Containerfile
+      dockerfile: ./images/bench/Dockerfile
       target: backend
     depends_on: [mariadb]
     env_file: [./envs/common.env, ./envs/sites.env]
@@ -52,7 +52,7 @@ services:
   scheduler:
     build:
       context: ./erpnext
-      dockerfile: ./images/bench/Containerfile
+      dockerfile: ./images/bench/Dockerfile
       target: scheduler
     depends_on: [backend]
     env_file: [./envs/common.env, ./envs/sites.env]
@@ -62,7 +62,7 @@ services:
   worker:
     build:
       context: ./erpnext
-      dockerfile: ./images/bench/Containerfile
+      dockerfile: ./images/bench/Dockerfile
       target: worker
     depends_on: [backend]
     env_file: [./envs/common.env, ./envs/sites.env]
