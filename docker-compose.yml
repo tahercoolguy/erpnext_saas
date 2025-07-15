@@ -91,7 +91,7 @@ services:
       - frappe_network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
+      - "traefik.http.routers.backend.rule=HostRegexp(`{subdomain:(?!provision)[a-z0-9-]+}.preciseerp.com`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
