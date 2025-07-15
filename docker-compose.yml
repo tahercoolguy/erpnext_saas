@@ -1,7 +1,5 @@
 # docker-compose.yml
 
-version: '3.7'
-
 services:
 
   traefik:
@@ -52,7 +50,8 @@ services:
   backend:
     build:
       context: ./erpnext
-      dockerfile: ./images/backend/Dockerfile
+      dockerfile: ./images/frappe/Dockerfile
+      target: backend
     depends_on:
       - mariadb
     env_file:
@@ -62,28 +61,19 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.erp.rule=HostRegexp(`{client:[a-z0-9-]+}.preciseerp.com`)"
+      - "traefik.http.routers.erp.rule=HostRegexp(`{client:[a-z0-9-]+}-erp.preciseerp.com`)
+"
       - "traefik.http.routers.erp.entrypoints=websecure"
       - "traefik.http.routers.erp.tls.certresolver=letsencrypt"
       - "traefik.http.services.erp.loadbalancer.server.port=8080"
     networks:
       - erpnet
 
-  frontend:
-    build:
-      context: ./erpnext
-      dockerfile: ./images/nginx/Dockerfile
-    depends_on:
-      - backend
-    volumes:
-      - sites-vol:/home/frappe/frappe-bench/sites
-    networks:
-      - erpnet
-
   scheduler:
     build:
       context: ./erpnext
-      dockerfile: ./images/scheduler/Dockerfile
+      dockerfile: ./images/frappe/Dockerfile
+      target: scheduler
     depends_on:
       - backend
     env_file:
@@ -97,12 +87,24 @@ services:
   worker:
     build:
       context: ./erpnext
-      dockerfile: ./images/worker/Dockerfile
+      dockerfile: ./images/frappe/Dockerfile
+      target: worker
     depends_on:
       - backend
     env_file:
       - ./envs/common.env
       - ./envs/sites.env
+    volumes:
+      - sites-vol:/home/frappe/frappe-bench/sites
+    networks:
+      - erpnet
+
+  frontend:
+    build:
+      context: ./erpnext
+      dockerfile: ./images/nginx/Dockerfile
+    depends_on:
+      - backend
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites
     networks:
