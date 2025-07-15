@@ -107,7 +107,7 @@ services:
     environment:
       - DJANGO_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_PASSWORD=admin
-      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+      - DJANGO_SUPERUSER_EMAIL=taher.badnawarwala@gmail.com
     command: >
       sh -c "python manage.py migrate && python manage.py createsu && python manage.py runserver 0.0.0.0:8000"
     labels:
