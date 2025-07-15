@@ -1,136 +1,103 @@
-# docker-compose.yml
-
 services:
-
   traefik:
     image: traefik:v2.11
     command:
-      - --api.insecure=true
       - --providers.docker=true
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
-      - --certificatesresolvers.letsencrypt.acme.email=taher.badnawarwala@gmail.com
+      - --certificatesresolvers.letsencrypt.acme.email=taher@saifytech.com
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-    ports:
-      - "80:80"
-      - "443:443"
+    ports: ["80:80","443:443"]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik/traefik.yml:/traefik.yml
       - ./traefik/acme.json:/letsencrypt/acme.json
-    networks:
-      - erpnet
+    networks: [erpnet]
 
   mariadb:
     image: mariadb:10.6
-    env_file:
-      - ./envs/mariadb.env
-    volumes:
-      - mariadb-data:/var/lib/mysql
-    networks:
-      - erpnet
+    env_file: [./envs/mariadb.env]
+    volumes: [mariadb-data:/var/lib/mysql]
+    networks: [erpnet]
 
   redis-cache:
     image: redis:alpine
-    networks:
-      - erpnet
+    networks: [erpnet]
 
   redis-queue:
     image: redis:alpine
-    networks:
-      - erpnet
+    networks: [erpnet]
 
   redis-socketio:
     image: redis:alpine
-    networks:
-      - erpnet
+    networks: [erpnet]
 
   backend:
     build:
       context: ./erpnext
-      dockerfile: ./images/frappe/Dockerfile
+      dockerfile: ./images/bench/Containerfile
       target: backend
-    depends_on:
-      - mariadb
-    env_file:
-      - ./envs/common.env
-      - ./envs/sites.env
-    volumes:
-      - sites-vol:/home/frappe/frappe-bench/sites
+    depends_on: [mariadb]
+    env_file: [./envs/common.env, ./envs/sites.env]
+    volumes: [sites-vol:/home/frappe/frappe-bench/sites]
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.erp.rule=HostRegexp(`{client:[a-z0-9-]+}-erp.preciseerp.com`)
-"
+      - "traefik.http.routers.erp.rule=HostRegexp(`{client:[a-z0-9-]+}.preciseerp.com`)"
       - "traefik.http.routers.erp.entrypoints=websecure"
       - "traefik.http.routers.erp.tls.certresolver=letsencrypt"
-      - "traefik.http.services.erp.loadbalancer.server.port=8080"
-    networks:
-      - erpnet
+      - "traefik.http.services.erp.loadbalancer.server.port=8000"
+    networks: [erpnet]
 
   scheduler:
     build:
       context: ./erpnext
-      dockerfile: ./images/frappe/Dockerfile
+      dockerfile: ./images/bench/Containerfile
       target: scheduler
-    depends_on:
-      - backend
-    env_file:
-      - ./envs/common.env
-      - ./envs/sites.env
-    volumes:
-      - sites-vol:/home/frappe/frappe-bench/sites
-    networks:
-      - erpnet
+    depends_on: [backend]
+    env_file: [./envs/common.env, ./envs/sites.env]
+    volumes: [sites-vol:/home/frappe/frappe-bench/sites]
+    networks: [erpnet]
 
   worker:
     build:
       context: ./erpnext
-      dockerfile: ./images/frappe/Dockerfile
+      dockerfile: ./images/bench/Containerfile
       target: worker
-    depends_on:
-      - backend
-    env_file:
-      - ./envs/common.env
-      - ./envs/sites.env
-    volumes:
-      - sites-vol:/home/frappe/frappe-bench/sites
-    networks:
-      - erpnet
+    depends_on: [backend]
+    env_file: [./envs/common.env, ./envs/sites.env]
+    volumes: [sites-vol:/home/frappe/frappe-bench/sites]
+    networks: [erpnet]
 
   frontend:
     build:
       context: ./erpnext
-      dockerfile: ./images/nginx/Dockerfile
-    depends_on:
-      - backend
-    volumes:
-      - sites-vol:/home/frappe/frappe-bench/sites
-    networks:
-      - erpnet
+      dockerfile: ./images/production/Containerfile
+    depends_on: [backend]
+    volumes: [sites-vol:/home/frappe/frappe-bench/sites]
+    networks: [erpnet]
 
   django:
     build: ./django
     volumes:
       - ./django:/app
       - sites-vol:/home/frappe/frappe-bench/sites
-    depends_on:
-      - backend
+    depends_on: [backend]
     environment:
       - DJANGO_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_PASSWORD=admin
       - DJANGO_SUPERUSER_EMAIL=admin@example.com
     command: >
-      sh -c "python manage.py migrate && python manage.py createsu && python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py migrate &&
+             python manage.py createsu &&
+             python manage.py runserver 0.0.0.0:8000"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.django.rule=Host(`provision.preciseerp.com`)"
       - "traefik.http.routers.django.entrypoints=websecure"
       - "traefik.http.routers.django.tls.certresolver=letsencrypt"
       - "traefik.http.services.django.loadbalancer.server.port=8000"
-    networks:
-      - erpnet
+    networks: [erpnet]
 
 volumes:
   mariadb-data:
