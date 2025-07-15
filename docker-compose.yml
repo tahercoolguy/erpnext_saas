@@ -1,8 +1,51 @@
-# docker-compose.yml
-
-version: "3"
+version: "3.8"
 
 services:
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=taher.badnawarwala@gmail.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./traefik/acme.json:/letsencrypt/acme.json"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - frappe_network
+
+  django:
+    build: ./django
+    volumes:
+      - ./django:/app
+      - sites:/home/frappe/frappe-bench/sites
+    depends_on:
+      - backend
+    environment:
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - DJANGO_SUPERUSER_EMAIL=taher.badnawarwala@gmail.com
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py createsu &&
+             python manage.py runserver 0.0.0.0:8001"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.django.rule=Host(`provision.preciseerp.com`)"
+      - "traefik.http.routers.django.entrypoints=websecure"
+      - "traefik.http.routers.django.tls.certresolver=letsencrypt"
+      - "traefik.http.services.django.loadbalancer.server.port=8001"
+      - "traefik.http.routers.django.service=django"
+    networks:
+      - frappe_network
+
   db:
     image: mariadb:10.6
     networks:
@@ -36,16 +79,16 @@ services:
 
   backend:
     image: frappe/erpnext:v15.69.2
-    networks:
-      - frappe_network
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
     environment:
       DB_HOST: db
       DB_PORT: "3306"
       MYSQL_ROOT_PASSWORD: admin
       MARIADB_ROOT_PASSWORD: admin
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    networks:
+      - frappe_network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
@@ -75,51 +118,49 @@ services:
 
   websocket:
     image: frappe/erpnext:v15.69.2
-    networks:
-      - frappe_network
     command:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
-
-  scheduler:
-    image: frappe/erpnext:v15.69.2
     networks:
       - frappe_network
-    command:
-      - bench
-      - schedule
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+    labels:
+      - "traefik.enable=false"
 
   queue-long:
     image: frappe/erpnext:v15.69.2
-    networks:
-      - frappe_network
-    command:
-      - bench
-      - worker
-      - --queue
-      - long,default,short
+    command: ["bench", "worker", "--queue", "long,default,short"]
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+    networks:
+      - frappe_network
+    labels:
+      - "traefik.enable=false"
 
   queue-short:
     image: frappe/erpnext:v15.69.2
-    networks:
-      - frappe_network
-    command:
-      - bench
-      - worker
-      - --queue
-      - short,default
+    command: ["bench", "worker", "--queue", "short,default"]
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+    networks:
+      - frappe_network
+    labels:
+      - "traefik.enable=false"
+
+  scheduler:
+    image: frappe/erpnext:v15.69.2
+    command: ["bench", "schedule"]
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    networks:
+      - frappe_network
+    labels:
+      - "traefik.enable=false"
 
   configurator:
     image: frappe/erpnext:v15.69.2
@@ -147,53 +188,12 @@ services:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
-  django:
-    build: ./django
-    volumes:
-      - ./django:/app
-      - sites:/home/frappe/frappe-bench/sites
-    depends_on:
-      - backend
-    environment:
-      - DJANGO_SUPERUSER_USERNAME=admin
-      - DJANGO_SUPERUSER_PASSWORD=admin
-      - DJANGO_SUPERUSER_EMAIL=taher.badnawarwala@gmail.com
-    command: >
-      sh -c "python manage.py migrate && python manage.py createsu && python manage.py runserver 0.0.0.0:8001"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.django.rule=Host(`provision.preciseerp.com`)"
-      - "traefik.http.routers.django.entrypoints=websecure"
-      - "traefik.http.routers.django.tls.certresolver=letsencrypt"
-      - "traefik.http.services.django.loadbalancer.server.port=8001"
-    networks:
-      - frappe_network
-
-  traefik:
-    image: traefik:v2.10
-    command:
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.email=taher.badnawarwala@gmail.com"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-      - "--api.dashboard=true"
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./traefik/acme.json:/letsencrypt/acme.json"
-    networks:
-      - frappe_network
 
 volumes:
-  db-data:
-  redis-queue-data:
   sites:
   logs:
+  db-data:
+  redis-queue-data:
 
 networks:
   frappe_network:
