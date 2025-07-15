@@ -2,18 +2,238 @@
 <html>
 <head>
   <title>Register Company</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .register-container {
+      background: #fff;
+      padding: 2.5rem 2rem 2rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      width: 350px;
+    }
+    h2 {
+      margin-bottom: 1.5rem;
+      color: #2d3748;
+      text-align: center;
+    }
+    label {
+      font-weight: 500;
+      color: #4a5568;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.3rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border 0.2s;
+    }
+    input[type="text"]:focus {
+      border: 1.5px solid #3182ce;
+      outline: none;
+    }
+    .domain-preview {
+      font-size: 0.98rem;
+      color: #718096;
+      margin-bottom: 1.2rem;
+      background: #f7fafc;
+      padding: 0.4rem 0.7rem;
+      border-radius: 5px;
+      display: inline-block;
+    }
+    .btn {
+      width: 100%;
+      background: #3182ce;
+      color: #fff;
+      border: none;
+      padding: 0.7rem;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:disabled {
+      background: #a0aec0;
+      cursor: not-allowed;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3182ce;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      margin: 1rem auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .message {
+      margin: 1rem 0 0.5rem 0;
+      padding: 0.7rem 1rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      display: none;
+    }
+    .message.error {
+      background: #fed7d7;
+      color: #c53030;
+      border: 1px solid #feb2b2;
+    }
+    .message.success {
+      background: #c6f6d5;
+      color: #22543d;
+      border: 1px solid #68d391;
+    }
+  </style>
 </head>
 <body>
-  <h2>Register a New Company</h2>
-  <form method="POST">
-    {% csrf_token %}
-    <label>Company Name:</label><br>
-    <input type="text" name="name" placeholder="ACME Inc." required><br><br>
+  <div class="register-container">
+    <h2>Register a New Company</h2>
+    <form id="registerForm" autocomplete="off">
+      {% csrf_token %}
+      <label>Company Name:</label><br>
+      <input type="text" name="name" id="name" placeholder="ACME Inc." required><br>
 
-    <label>Subdomain:</label><br>
-    <input type="text" name="domain" placeholder="acme.yourdomain.com" required><br><br>
+      <label>Subdomain:</label><br>
+      <input type="text" name="subdomain" id="subdomain" placeholder="yourcompany" pattern="^[a-z0-9-]+$" title="Only lowercase letters, numbers, and hyphens allowed" required>
+      <div class="domain-preview" id="domainPreview">-erp.preciseerp.com</div>
 
-    <button type="submit">Register</button>
-  </form>
+      <button type="submit" class="btn" id="registerBtn">Register</button>
+      <div class="loader" id="loader"></div>
+      <div class="message error" id="errorMsg"></div>
+      <div class="message success" id="successMsg"></div>
+    </form>
+  </div>
+  <script>
+    const subdomainInput = document.getElementById('subdomain');
+    const domainPreview = document.getElementById('domainPreview');
+    const registerForm = document.getElementById('registerForm');
+    const loader = document.getElementById('loader');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+    const registerBtn = document.getElementById('registerBtn');
+
+    function updateDomainPreview() {
+      const val = subdomainInput.value.trim().toLowerCase();
+      domainPreview.textContent = val ? `${val}-erp.preciseerp.com` : '-erp.preciseerp.com';
+    }
+
+    subdomainInput.addEventListener('input', function() {
+      updateDomainPreview();
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+      if (this.value.trim()) {
+        checkDomainAvailability(this.value.trim().toLowerCase());
+      }
+    });
+
+    function showLoader(show) {
+      loader.style.display = show ? 'block' : 'none';
+      registerBtn.disabled = show;
+    }
+
+    function showMessage(type, msg) {
+      if (type === 'error') {
+        errorMsg.textContent = msg;
+        errorMsg.style.display = 'block';
+        successMsg.style.display = 'none';
+      } else if (type === 'success') {
+        successMsg.textContent = msg;
+        successMsg.style.display = 'block';
+        errorMsg.style.display = 'none';
+      }
+    }
+
+    let lastChecked = '';
+    let domainAvailable = false;
+    function checkDomainAvailability(subdomain) {
+      lastChecked = subdomain;
+      fetch(`/check-domain/?subdomain=${encodeURIComponent(subdomain)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (lastChecked !== subdomain) return; // ignore out-of-order
+          if (data.available) {
+            domainAvailable = true;
+            showMessage('success', 'Domain is available!');
+          } else {
+            domainAvailable = false;
+            showMessage('error', 'Domain is already taken.');
+          }
+        })
+        .catch(() => {
+          showMessage('error', 'Could not check domain availability.');
+        });
+    }
+
+    registerForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+      const name = document.getElementById('name').value.trim();
+      const subdomain = subdomainInput.value.trim().toLowerCase();
+      if (!name || !subdomain) {
+        showMessage('error', 'Please fill all fields.');
+        return;
+      }
+      if (!/^[a-z0-9-]+$/.test(subdomain)) {
+        showMessage('error', 'Subdomain can only contain lowercase letters, numbers, and hyphens.');
+        return;
+      }
+      showLoader(true);
+      fetch('/check-domain/?subdomain=' + encodeURIComponent(subdomain))
+        .then(res => res.json())
+        .then(data => {
+          if (!data.available) {
+            showLoader(false);
+            showMessage('error', 'Domain is already taken.');
+            return;
+          }
+          // Proceed to register
+          const formData = new FormData(registerForm);
+          fetch('', {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+          })
+          .then(res => res.json())
+          .then(data => {
+            showLoader(false);
+            if (data.success) {
+              showMessage('success', 'Company registered successfully!');
+              registerForm.reset();
+              updateDomainPreview();
+            } else {
+              showMessage('error', data.error || 'Registration failed.');
+            }
+          })
+          .catch(() => {
+            showLoader(false);
+            showMessage('error', 'Registration failed.');
+          });
+        })
+        .catch(() => {
+          showLoader(false);
+          showMessage('error', 'Could not check domain availability.');
+        });
+    });
+    updateDomainPreview();
+  </script>
 </body>
 </html>
