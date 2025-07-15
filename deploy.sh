@@ -21,9 +21,9 @@ docker pull mariadb:10.6
 docker pull redis:alpine
 
 echo "📦 Building ERPNext and Django images locally..."
-cd erpnext
-cp .env-example .env 2>/dev/null || true
-cd ..
+#cd erpnext
+#cp .env-example .env 2>/dev/null || true
+#cd ..
 docker compose build
 
 # Launch all containers
