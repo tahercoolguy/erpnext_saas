@@ -65,7 +65,7 @@ services:
       - erpnet
 
   frontend:
-    image: frappe/erpnext-nginx:v15
+    image: frappe/erpnext-nginx:v15.25.1
     depends_on:
       - backend
     volumes:
