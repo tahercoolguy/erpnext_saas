@@ -41,8 +41,8 @@ services:
       - "traefik.http.routers.django.rule=Host(`provision.preciseerp.com`)"
       - "traefik.http.routers.django.entrypoints=websecure"
       - "traefik.http.routers.django.tls.certresolver=letsencrypt"
-      - "traefik.http.services.django.loadbalancer.server.port=8001"
-      - "traefik.http.routers.django.service=django"
+      - "traefik.http.routers.django.service=django-service"
+      - "traefik.http.services.django-service.loadbalancer.server.port=8001"
     networks:
       - frappe_network
 
