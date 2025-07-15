@@ -1,6 +1,9 @@
+# docker-compose.yml
+
 version: '3.7'
 
 services:
+
   traefik:
     image: traefik:v2.11
     command:
@@ -10,7 +13,7 @@ services:
       - --entrypoints.websecure.address=:443
       - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
-      - --certificatesresolvers.letsencrypt.acme.email=your-email@example.com
+      - --certificatesresolvers.letsencrypt.acme.email=taher.badnawarwala@gmail.com
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
     ports:
       - "80:80"
@@ -47,7 +50,9 @@ services:
       - erpnet
 
   backend:
-    image: frappe/erpnext-worker:v15
+    build:
+      context: ./erpnext
+      dockerfile: ./images/backend/Dockerfile
     depends_on:
       - mariadb
     env_file:
@@ -57,7 +62,7 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.erp.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
+      - "traefik.http.routers.erp.rule=HostRegexp(`{client:[a-z0-9-]+}.preciseerp.com`)"
       - "traefik.http.routers.erp.entrypoints=websecure"
       - "traefik.http.routers.erp.tls.certresolver=letsencrypt"
       - "traefik.http.services.erp.loadbalancer.server.port=8080"
@@ -65,7 +70,9 @@ services:
       - erpnet
 
   frontend:
-    image: frappe/erpnext-nginx:v15.25.1
+    build:
+      context: ./erpnext
+      dockerfile: ./images/nginx/Dockerfile
     depends_on:
       - backend
     volumes:
@@ -74,7 +81,9 @@ services:
       - erpnet
 
   scheduler:
-    image: frappe/erpnext-scheduler:v15
+    build:
+      context: ./erpnext
+      dockerfile: ./images/scheduler/Dockerfile
     depends_on:
       - backend
     env_file:
@@ -86,7 +95,9 @@ services:
       - erpnet
 
   worker:
-    image: frappe/erpnext-worker:v15
+    build:
+      context: ./erpnext
+      dockerfile: ./images/worker/Dockerfile
     depends_on:
       - backend
     env_file:
@@ -107,7 +118,7 @@ services:
     environment:
       - DJANGO_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_PASSWORD=admin
-      - DJANGO_SUPERUSER_EMAIL=taher.badnawarwala@gmail.com
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
     command: >
       sh -c "python manage.py migrate && python manage.py createsu && python manage.py runserver 0.0.0.0:8000"
     labels:
