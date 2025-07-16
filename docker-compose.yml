@@ -38,7 +38,7 @@ services:
              python manage.py runserver 0.0.0.0:8001"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.django.rule=Host(`provision.preciseerp.com`)"
+      - "traefik.http.routers.django.rule=Host(`provision-1.preciseerp.com`)"
       - "traefik.http.routers.django.entrypoints=websecure"
       - "traefik.http.routers.django.tls.certresolver=letsencrypt"
       - "traefik.http.routers.django.service=django-service"
@@ -91,7 +91,7 @@ services:
       - frappe_network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=HostRegexp(`customer1.preciseerp.com`)"
+      - "traefik.http.routers.backend.rule=HostRegexp(`{subdomain:(?!provision-1)[a-z0-9-]+}.preciseerp.com`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-p$!0md&22kun5)a7s$s@-q#e9ncx^6m10$x%8j_28=w=tb4xj#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['preciseerp.com', '.preciseerp.com']
+ALLOWED_HOSTS = ['preciseerp.com', '*.preciseerp.com','provision-1.preciseerp.com']
 
 
 # Application definition
@@ -128,4 +128,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_TRUSTED_ORIGINS = [
     "https://preciseerp.com",
     "https://www.preciseerp.com",
+     "https://provision-1.preciseerp.com"
 ]
