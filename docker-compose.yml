@@ -116,6 +116,12 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.erp.rule=Host(`customer1.preciseerp.com`)"
+    - "traefik.http.routers.erp.entrypoints=websecure"
+    - "traefik.http.routers.erp.tls.certresolver=letsencrypt"
+    - "traefik.http.services.erp.loadbalancer.server.port=8080"
 
   websocket:
     image: frappe/erpnext:v15.69.2
