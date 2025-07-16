@@ -92,8 +92,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=HostRegexp(`customer1.preciseerp.com`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      # - "traefik.http.routers.backend.entrypoints=websecure"
+      # - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
 
   frontend:
