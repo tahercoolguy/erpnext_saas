@@ -119,8 +119,9 @@ services:
     labels:
     - "traefik.enable=true"
     - "traefik.http.routers.erp.rule=Host(`customer1.preciseerp.com`)"
-    - "traefik.http.routers.erp.entrypoints=websecure"
-    - "traefik.http.routers.erp.tls.certresolver=letsencrypt"
+    # - "traefik.http.routers.erp.entrypoints=websecure"
+    # - "traefik.http.routers.erp.tls.certresolver=letsencrypt"
+    - "traefik.http.routers.backend.entrypoints=web"
     - "traefik.http.services.erp.loadbalancer.server.port=8080"
 
   websocket:
