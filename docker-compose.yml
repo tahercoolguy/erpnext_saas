@@ -39,7 +39,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.django.rule=Host(`provision-1.preciseerp.com`)"
-      - "traefik.http.routers.erp.priority=20"
+      - "traefik.http.routers.django.priority=20"
       - "traefik.http.routers.django.entrypoints=websecure"
       - "traefik.http.routers.django.tls.certresolver=letsencrypt"
       - "traefik.http.routers.django.service=django-service"
