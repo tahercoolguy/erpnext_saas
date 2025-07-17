@@ -39,6 +39,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.django.rule=Host(`provision-1.preciseerp.com`)"
+      - "traefik.http.routers.erp.priority=20"
       - "traefik.http.routers.django.entrypoints=websecure"
       - "traefik.http.routers.django.tls.certresolver=letsencrypt"
       - "traefik.http.routers.django.service=django-service"
@@ -113,7 +114,8 @@ services:
       - "8080:8080"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=HostRegexp(`customer1.preciseerp.com`)"
+      - "traefik.http.routers.erp.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
+      - "traefik.http.routers.erp.priority=10"
       # - "traefik.http.routers.frontend.entrypoints=websecure"
       # - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.routers.frontend.entrypoints=web"
