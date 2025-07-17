@@ -55,7 +55,7 @@
     }
     .frappe-input-row {
       display: flex;
-      align-items: stretch;
+      align-items: center;
       margin-bottom: 1.1rem;
       gap: 0;
     }
@@ -63,6 +63,9 @@
       border-radius: 6px 0 0 6px;
       border-right: none;
       margin-bottom: 0;
+      background: #f4f6fb;
+      height: 44px;
+      font-size: 1rem;
     }
     .domain-suffix {
       display: flex;
@@ -70,23 +73,25 @@
       font-size: 1rem;
       color: #888;
       background: #f4f6fb;
-      padding: 0 0.9rem;
+      padding: 0 1rem;
       border-radius: 0 6px 6px 0;
       border: 1.5px solid #e3e6eb;
       border-left: none;
       min-width: 120px;
-      height: 42px;
+      height: 44px;
       box-sizing: border-box;
+      margin-right: 0.5rem;
     }
     .domain-availability {
-      margin-left: 0.7rem;
       font-size: 0.98rem;
       font-weight: 500;
-      padding: 0.2rem 0.7rem;
+      padding: 0 1.1rem;
       border-radius: 5px;
       display: flex;
       align-items: center;
-      height: 42px;
+      height: 44px;
+      box-sizing: border-box;
+      margin-left: 0;
     }
     .domain-available {
       background: #e6f9e6;
@@ -175,6 +180,15 @@
         min-width: 80px;
         font-size: 0.95rem;
         padding: 0 0.4rem;
+        height: 40px;
+      }
+      .frappe-input-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.3rem;
+      }
+      .domain-suffix {
+        margin-right: 0;
       }
       .frappe-apps-section {
         grid-template-columns: 1fr;
