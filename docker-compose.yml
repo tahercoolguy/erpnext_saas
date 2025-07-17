@@ -194,6 +194,24 @@ services:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: admin
+    depends_on:
+      - db
+    networks:
+      - frappe_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`dbadmin.preciseerp.com`)"
+      - "traefik.http.routers.phpmyadmin.priority=5"
+      - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
+      - "traefik.http.routers.phpmyadmin.tls.certresolver=letsencrypt"
+      - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
+
 
 volumes:
   sites:

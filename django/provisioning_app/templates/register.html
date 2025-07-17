@@ -113,6 +113,11 @@
       <input type="text" name="subdomain" id="subdomain" placeholder="yourcompany" pattern="^[a-z0-9-]+$" title="Only lowercase letters, numbers, and hyphens allowed" required>
       <div class="domain-preview" id="domainPreview">.preciseerp.com</div>
 
+      <label>Administrator Password:</label><br>
+      <input type="password" name="admin_password" id="admin_password" placeholder="At least 8 characters" autocomplete="new-password" style="width:100%;padding:0.6rem;margin-top:0.3rem;margin-bottom:0.5rem;border:1px solid #cbd5e0;border-radius:6px;font-size:1rem;" required minlength="8">
+      <input type="password" name="admin_password_confirm" id="admin_password_confirm" placeholder="Confirm password" autocomplete="new-password" style="width:100%;padding:0.6rem;margin-bottom:1.2rem;border:1px solid #cbd5e0;border-radius:6px;font-size:1rem;" required minlength="8">
+      <div style="font-size:0.95rem;color:#718096;margin-bottom:1.2rem;">Password must be at least 8 characters. Both fields are required.</div>
+
       <label>Select Apps to Install:</label><br>
       <div id="appsSection" style="margin-bottom: 1.2rem;">
         <label><input type="checkbox" name="apps" value="erpnext" checked> ERPNext</label><br>
@@ -195,12 +200,27 @@
       successMsg.style.display = 'none';
       const name = document.getElementById('name').value.trim();
       const subdomain = subdomainInput.value.trim().toLowerCase();
+      const adminPassword = document.getElementById('admin_password').value;
+      const adminPasswordConfirm = document.getElementById('admin_password_confirm').value;
       if (!name || !subdomain) {
         showMessage('error', 'Please fill all fields.');
         return;
       }
       if (!/^[a-z0-9-]+$/.test(subdomain)) {
         showMessage('error', 'Subdomain can only contain lowercase letters, numbers, and hyphens.');
+        return;
+      }
+      // Password validation
+      if (!adminPassword || !adminPasswordConfirm) {
+        showMessage('error', 'Please enter and confirm the administrator password.');
+        return;
+      }
+      if (adminPassword.length < 8) {
+        showMessage('error', 'Administrator password must be at least 8 characters.');
+        return;
+      }
+      if (adminPassword !== adminPasswordConfirm) {
+        showMessage('error', 'Administrator passwords do not match.');
         return;
       }
       // Collect selected apps
@@ -223,6 +243,8 @@
           // Add selected apps explicitly (for browsers that don't send multiple values by default)
           formData.delete('apps');
           appCheckboxes.forEach(cb => formData.append('apps', cb.value));
+          // Only send the password field, not the confirmation
+          formData.delete('admin_password_confirm');
           fetch('', {
             method: 'POST',
             headers: {

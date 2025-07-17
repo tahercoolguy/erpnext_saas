@@ -1,7 +1,7 @@
 import subprocess
 import sys
 
-def provision_site(domain, apps):
+def provision_site(domain, apps, admin_password):
     print(f"\n[INFO] Starting site provisioning for: {domain}\n")
 
     try:
@@ -11,7 +11,7 @@ def provision_site(domain, apps):
             "docker", "exec", "erpnext_saas_backend_1",
             "bench", "new-site", domain,
             "--no-mariadb-socket",
-            "--admin-password", "admin",
+            "--admin-password", admin_password,
             "--mariadb-root-password", "admin"
         ], check=True, capture_output=True, text=True)
         print("[OK] Site created successfully.")
