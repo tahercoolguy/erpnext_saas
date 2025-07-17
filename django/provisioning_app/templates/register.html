@@ -111,7 +111,7 @@
 
       <label>Subdomain:</label><br>
       <input type="text" name="subdomain" id="subdomain" placeholder="yourcompany" pattern="^[a-z0-9-]+$" title="Only lowercase letters, numbers, and hyphens allowed" required>
-      <div class="domain-preview" id="domainPreview">-erp.preciseerp.com</div>
+      <div class="domain-preview" id="domainPreview">.preciseerp.com</div>
 
       <button type="submit" class="btn" id="registerBtn">Register</button>
       <div class="loader" id="loader"></div>
@@ -130,7 +130,7 @@
 
     function updateDomainPreview() {
       const val = subdomainInput.value.trim().toLowerCase();
-      domainPreview.textContent = val ? `${val}-erp.preciseerp.com` : '-erp.preciseerp.com';
+      domainPreview.textContent = val ? `${val}.preciseerp.com` : '.preciseerp.com';
     }
 
     subdomainInput.addEventListener('input', function() {

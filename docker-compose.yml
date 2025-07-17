@@ -26,6 +26,7 @@ services:
     volumes:
       - ./django:/app
       - sites:/home/frappe/frappe-bench/sites
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - backend
     environment:

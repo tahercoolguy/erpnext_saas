@@ -14,7 +14,7 @@ def check_domain(request):
     subdomain = request.GET.get('subdomain', '').strip().lower()
     if not subdomain:
         return JsonResponse({'available': False, 'error': 'No subdomain provided'}, status=400)
-    domain = f"{subdomain}-erp.preciseerp.com"
+    domain = f"{subdomain}.preciseerp.com"
     exists = Company.objects.filter(domain=domain).exists()
     return JsonResponse({'available': not exists})
 
@@ -24,7 +24,7 @@ def register_company(request):
         subdomain = request.POST.get('subdomain', '').strip().lower()
         if not name or not subdomain:
             return JsonResponse({'success': False, 'error': 'Missing fields'}, status=400)
-        domain = f"{subdomain}-erp.preciseerp.com"
+        domain = f"{subdomain}.preciseerp.com"
         if Company.objects.filter(domain=domain).exists():
             return JsonResponse({'success': False, 'error': 'Domain already taken'}, status=400)
         company = Company.objects.create(name=name, domain=domain)
