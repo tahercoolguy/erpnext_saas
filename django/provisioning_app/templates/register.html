@@ -5,56 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f6fb;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f7fafc;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
     }
-    .register-container {
+    .frappe-card {
       background: #fff;
-      padding: 2.5rem 2rem 2rem 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-      width: 350px;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(76,139,245,0.07), 0 1.5px 4px rgba(0,0,0,0.04);
+      padding: 2.5rem 2.2rem 2rem 2.2rem;
+      width: 370px;
+      max-width: 95vw;
     }
     h2 {
       margin-bottom: 1.5rem;
       color: #2d3748;
       text-align: center;
+      font-weight: 600;
+      font-size: 1.5rem;
     }
-    label {
+    .frappe-label {
       font-weight: 500;
-      color: #4a5568;
+      color: #5a5a5a;
+      margin-bottom: 0.2rem;
+      display: block;
+      font-size: 1rem;
     }
-    input[type="text"] {
-      width: 100%;
-      padding: 0.6rem;
-      margin-top: 0.3rem;
-      margin-bottom: 1.2rem;
-      border: 1px solid #cbd5e0;
+    .frappe-input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-bottom: 1.1rem;
+    }
+    .frappe-input {
+      flex: 1;
+      padding: 0.6rem 0.7rem;
+      border: 1.5px solid #e3e6eb;
       border-radius: 6px;
       font-size: 1rem;
       transition: border 0.2s;
+      background: #f9fafb;
+      color: #222;
     }
-    input[type="text"]:focus {
-      border: 1.5px solid #3182ce;
+    .frappe-input:focus {
+      border: 1.5px solid #4C8BF5;
       outline: none;
+      background: #fff;
     }
-    .domain-preview {
+    .domain-suffix {
+      font-size: 1rem;
+      color: #888;
+      background: #f4f6fb;
+      padding: 0.5rem 0.7rem;
+      border-radius: 0 6px 6px 0;
+      border: 1.5px solid #e3e6eb;
+      border-left: none;
+      min-width: 120px;
+      text-align: left;
+    }
+    .domain-availability {
+      margin-left: 0.5rem;
       font-size: 0.98rem;
-      color: #718096;
-      margin-bottom: 1.2rem;
-      background: #f7fafc;
-      padding: 0.4rem 0.7rem;
+      font-weight: 500;
+      padding: 0.2rem 0.7rem;
       border-radius: 5px;
       display: inline-block;
+      vertical-align: middle;
     }
-    .btn {
+    .domain-available {
+      background: #e6f9e6;
+      color: #1a7f37;
+      border: 1px solid #7be495;
+    }
+    .domain-taken {
+      background: #ffeaea;
+      color: #c53030;
+      border: 1px solid #feb2b2;
+    }
+    .frappe-btn {
       width: 100%;
-      background: #3182ce;
+      background: #4C8BF5;
       color: #fff;
       border: none;
       padding: 0.7rem;
@@ -63,14 +97,32 @@
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s;
+      margin-top: 0.5rem;
     }
-    .btn:disabled {
-      background: #a0aec0;
+    .frappe-btn:disabled {
+      background: #b3cdfa;
       cursor: not-allowed;
     }
-    .loader {
+    .frappe-notify {
+      margin: 1rem 0 0.5rem 0;
+      padding: 0.7rem 1rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      display: none;
+    }
+    .frappe-notify.error {
+      background: #ffeaea;
+      color: #c53030;
+      border: 1px solid #feb2b2;
+    }
+    .frappe-notify.success {
+      background: #e6f9e6;
+      color: #1a7f37;
+      border: 1px solid #7be495;
+    }
+    .frappe-loader {
       border: 4px solid #f3f3f3;
-      border-top: 4px solid #3182ce;
+      border-top: 4px solid #4C8BF5;
       border-radius: 50%;
       width: 32px;
       height: 32px;
@@ -82,78 +134,140 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    .message {
-      margin: 1rem 0 0.5rem 0;
-      padding: 0.7rem 1rem;
-      border-radius: 6px;
-      font-size: 1rem;
-      display: none;
+    .frappe-apps-section label {
+      font-weight: 400;
+      color: #444;
+      font-size: 0.98rem;
+      margin-right: 1.2rem;
     }
-    .message.error {
-      background: #fed7d7;
-      color: #c53030;
-      border: 1px solid #feb2b2;
-    }
-    .message.success {
-      background: #c6f6d5;
-      color: #22543d;
-      border: 1px solid #68d391;
+    .frappe-helper {
+      font-size: 0.95rem;
+      color: #718096;
+      margin-bottom: 1.2rem;
     }
   </style>
 </head>
 <body>
-  <div class="register-container">
+  <div class="frappe-card">
     <h2>Register a New Company</h2>
     <form id="registerForm" autocomplete="off">
       {% csrf_token %}
-      <label>Company Name:</label><br>
-      <input type="text" name="name" id="name" placeholder="ACME Inc." required><br>
+      <label class="frappe-label">Company Name:</label>
+      <input type="text" name="name" id="name" class="frappe-input" placeholder="ACME Inc." required>
 
-      <label>Subdomain:</label><br>
-      <input type="text" name="subdomain" id="subdomain" placeholder="yourcompany" pattern="^[a-z0-9-]+$" title="Only lowercase letters, numbers, and hyphens allowed" required>
-      <div class="domain-preview" id="domainPreview">.preciseerp.com</div>
-
-      <label>Administrator Password:</label><br>
-      <input type="password" name="admin_password" id="admin_password" placeholder="At least 8 characters" autocomplete="new-password" style="width:100%;padding:0.6rem;margin-top:0.3rem;margin-bottom:0.5rem;border:1px solid #cbd5e0;border-radius:6px;font-size:1rem;" required minlength="8">
-      <input type="password" name="admin_password_confirm" id="admin_password_confirm" placeholder="Confirm password" autocomplete="new-password" style="width:100%;padding:0.6rem;margin-bottom:1.2rem;border:1px solid #cbd5e0;border-radius:6px;font-size:1rem;" required minlength="8">
-      <div style="font-size:0.95rem;color:#718096;margin-bottom:1.2rem;">Password must be at least 8 characters. Both fields are required.</div>
-
-      <label>Select Apps to Install:</label><br>
-      <div id="appsSection" style="margin-bottom: 1.2rem;">
-        <label><input type="checkbox" name="apps" value="erpnext" checked> ERPNext</label><br>
-        <label><input type="checkbox" name="apps" value="hrms"> Frappe HR</label><br>
-        <label><input type="checkbox" name="apps" value="healthcare"> Healthcare</label><br>
-        <label><input type="checkbox" name="apps" value="education"> Education</label><br>
-        <label><input type="checkbox" name="apps" value="crm"> CRM</label><br>
+      <label class="frappe-label">Subdomain:</label>
+      <div class="frappe-input-row">
+        <input type="text" name="subdomain" id="subdomain" class="frappe-input" placeholder="yourcompany" pattern="^[a-z0-9-]+$" title="Only lowercase letters, numbers, and hyphens allowed" required style="border-radius:6px 0 0 6px; margin-bottom:0;">
+        <span class="domain-suffix">.preciseerp.com</span>
+        <span id="domainStatus" class="domain-availability"></span>
       </div>
 
-      <button type="submit" class="btn" id="registerBtn">Register</button>
-      <div class="loader" id="loader"></div>
-      <div class="message error" id="errorMsg"></div>
-      <div class="message success" id="successMsg"></div>
+      <label class="frappe-label">Administrator Password:</label>
+      <input type="password" name="admin_password" id="admin_password" class="frappe-input" placeholder="At least 8 characters" autocomplete="new-password" required minlength="8">
+      <input type="password" name="admin_password_confirm" id="admin_password_confirm" class="frappe-input" placeholder="Confirm password" autocomplete="new-password" required minlength="8" style="margin-bottom:0.7rem;">
+      <div class="frappe-helper">Password must be at least 8 characters. Both fields are required.</div>
+
+      <label class="frappe-label">Select Apps to Install:</label>
+      <div id="appsSection" class="frappe-apps-section" style="margin-bottom: 1.2rem;">
+        <label><input type="checkbox" name="apps" value="erpnext" checked> ERPNext</label>
+        <label><input type="checkbox" name="apps" value="hrms"> Frappe HR</label>
+        <label><input type="checkbox" name="apps" value="healthcare"> Healthcare</label>
+        <label><input type="checkbox" name="apps" value="education"> Education</label>
+        <label><input type="checkbox" name="apps" value="crm"> CRM</label>
+      </div>
+
+      <button type="submit" class="frappe-btn" id="registerBtn">Register</button>
+      <div class="frappe-loader" id="loader"></div>
+      <div class="frappe-notify error" id="errorMsg"></div>
+      <div class="frappe-notify success" id="successMsg"></div>
     </form>
   </div>
   <script>
+    // --- Frappe UI + Smart Domain Suggestion ---
+    const nameInput = document.getElementById('name');
     const subdomainInput = document.getElementById('subdomain');
-    const domainPreview = document.getElementById('domainPreview');
+    const domainStatus = document.getElementById('domainStatus');
     const registerForm = document.getElementById('registerForm');
     const loader = document.getElementById('loader');
     const errorMsg = document.getElementById('errorMsg');
     const successMsg = document.getElementById('successMsg');
     const registerBtn = document.getElementById('registerBtn');
 
-    function updateDomainPreview() {
-      const val = subdomainInput.value.trim().toLowerCase();
-      domainPreview.textContent = val ? `${val}.preciseerp.com` : '.preciseerp.com';
+    let domainAvailable = false;
+    let lastChecked = '';
+    let autoSuggesting = false;
+
+    function slugify(text) {
+      return text.toString().toLowerCase()
+        .replace(/\s+/g, '-')           // Replace spaces with -
+        .replace(/[^a-z0-9-]/g, '')     // Remove all non-alphanumeric except -
+        .replace(/-+/g, '-')            // Replace multiple - with single -
+        .replace(/^-+|-+$/g, '');       // Trim - from start/end
     }
 
-    subdomainInput.addEventListener('input', function() {
-      updateDomainPreview();
-      errorMsg.style.display = 'none';
-      successMsg.style.display = 'none';
-      if (this.value.trim()) {
-        checkDomainAvailability(this.value.trim().toLowerCase());
+    async function suggestAvailableSubdomain(base) {
+      let candidate = base;
+      let tries = 0;
+      let maxTries = 8;
+      while (tries < maxTries) {
+        const available = await checkDomainAvailability(candidate, true);
+        if (available) return candidate;
+        candidate = base + Math.floor(Math.random() * 1000);
+        tries++;
       }
+      return '';
+    }
+
+    async function checkDomainAvailability(subdomain, silent) {
+      lastChecked = subdomain;
+      try {
+        const res = await fetch(`/check-domain/?subdomain=${encodeURIComponent(subdomain)}`);
+        const data = await res.json();
+        if (lastChecked !== subdomain) return false;
+        domainAvailable = !!data.available;
+        if (!silent) {
+          if (domainAvailable) {
+            domainStatus.textContent = 'Available';
+            domainStatus.className = 'domain-availability domain-available';
+          } else {
+            domainStatus.textContent = 'Not available';
+            domainStatus.className = 'domain-availability domain-taken';
+          }
+        }
+        return domainAvailable;
+      } catch {
+        if (!silent) {
+          domainStatus.textContent = 'Error checking domain';
+          domainStatus.className = 'domain-availability domain-taken';
+        }
+        return false;
+      }
+    }
+
+    nameInput.addEventListener('input', async function() {
+      if (autoSuggesting) return;
+      autoSuggesting = true;
+      const base = slugify(this.value);
+      if (!base) {
+        subdomainInput.value = '';
+        domainStatus.textContent = '';
+        autoSuggesting = false;
+        return;
+      }
+      subdomainInput.value = base;
+      domainStatus.textContent = 'Checking...';
+      domainStatus.className = 'domain-availability';
+      let suggested = await suggestAvailableSubdomain(base);
+      if (suggested && suggested !== base) {
+        subdomainInput.value = suggested;
+      }
+      await checkDomainAvailability(subdomainInput.value, false);
+      autoSuggesting = false;
+    });
+
+    subdomainInput.addEventListener('input', function() {
+      if (autoSuggesting) return;
+      checkDomainAvailability(this.value.trim().toLowerCase(), false);
     });
 
     function showLoader(show) {
@@ -173,32 +287,11 @@
       }
     }
 
-    let lastChecked = '';
-    let domainAvailable = false;
-    function checkDomainAvailability(subdomain) {
-      lastChecked = subdomain;
-      fetch(`/check-domain/?subdomain=${encodeURIComponent(subdomain)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (lastChecked !== subdomain) return; // ignore out-of-order
-          if (data.available) {
-            domainAvailable = true;
-            showMessage('success', 'Domain is available!');
-          } else {
-            domainAvailable = false;
-            showMessage('error', 'Domain is already taken.');
-          }
-        })
-        .catch(() => {
-          showMessage('error', 'Could not check domain availability.');
-        });
-    }
-
-    registerForm.addEventListener('submit', function(e) {
+    registerForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       errorMsg.style.display = 'none';
       successMsg.style.display = 'none';
-      const name = document.getElementById('name').value.trim();
+      const name = nameInput.value.trim();
       const subdomain = subdomainInput.value.trim().toLowerCase();
       const adminPassword = document.getElementById('admin_password').value;
       const adminPasswordConfirm = document.getElementById('admin_password_confirm').value;
@@ -210,7 +303,6 @@
         showMessage('error', 'Subdomain can only contain lowercase letters, numbers, and hyphens.');
         return;
       }
-      // Password validation
       if (!adminPassword || !adminPasswordConfirm) {
         showMessage('error', 'Please enter and confirm the administrator password.');
         return;
@@ -223,57 +315,45 @@
         showMessage('error', 'Administrator passwords do not match.');
         return;
       }
-      // Collect selected apps
       const appCheckboxes = document.querySelectorAll('input[name="apps"]:checked');
       if (appCheckboxes.length === 0) {
         showMessage('error', 'Please select at least one app to install.');
         return;
       }
       showLoader(true);
-      fetch('/check-domain/?subdomain=' + encodeURIComponent(subdomain))
-        .then(res => res.json())
-        .then(data => {
-          if (!data.available) {
-            showLoader(false);
-            showMessage('error', 'Domain is already taken.');
-            return;
-          }
-          // Proceed to register
-          const formData = new FormData(registerForm);
-          // Add selected apps explicitly (for browsers that don't send multiple values by default)
-          formData.delete('apps');
-          appCheckboxes.forEach(cb => formData.append('apps', cb.value));
-          // Only send the password field, not the confirmation
-          formData.delete('admin_password_confirm');
-          fetch('', {
-            method: 'POST',
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-            },
-            body: formData
-          })
-          .then(res => res.json())
-          .then(data => {
-            showLoader(false);
-            if (data.success) {
-              showMessage('success', 'Company registered successfully!');
-              registerForm.reset();
-              updateDomainPreview();
-            } else {
-              showMessage('error', data.error || 'Registration failed.');
-            }
-          })
-          .catch(() => {
-            showLoader(false);
-            showMessage('error', 'Registration failed.');
-          });
-        })
-        .catch(() => {
-          showLoader(false);
-          showMessage('error', 'Could not check domain availability.');
-        });
+      const available = await checkDomainAvailability(subdomain, false);
+      if (!available) {
+        showLoader(false);
+        showMessage('error', 'Domain is already taken.');
+        return;
+      }
+      const formData = new FormData(registerForm);
+      formData.delete('apps');
+      appCheckboxes.forEach(cb => formData.append('apps', cb.value));
+      formData.delete('admin_password_confirm');
+      fetch('', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        showLoader(false);
+        if (data.success) {
+          showMessage('success', 'Company registered successfully!');
+          registerForm.reset();
+          domainStatus.textContent = '';
+        } else {
+          showMessage('error', data.error || 'Registration failed.');
+        }
+      })
+      .catch(() => {
+        showLoader(false);
+        showMessage('error', 'Registration failed.');
+      });
     });
-    updateDomainPreview();
   </script>
 </body>
 </html>
