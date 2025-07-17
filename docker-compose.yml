@@ -208,8 +208,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.phpmyadmin.rule=Host(`dbadmin.preciseerp.com`)"
       - "traefik.http.routers.phpmyadmin.priority=5"
-      - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
-      - "traefik.http.routers.phpmyadmin.tls.certresolver=letsencrypt"
+      # - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
+      # - "traefik.http.routers.phpmyadmin.tls.certresolver=letsencrypt"
       - "traefik.http.routers.phpmyadmin.entrypoints=web"
       - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
 
