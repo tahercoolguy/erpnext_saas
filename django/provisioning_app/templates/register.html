@@ -84,13 +84,17 @@
     .domain-availability {
       font-size: 0.98rem;
       font-weight: 500;
-      padding: 0 1.1rem;
+      padding: 0.5rem 1.1rem;
       border-radius: 5px;
-      display: flex;
+      display: block;
       align-items: center;
-      height: 44px;
+      height: auto;
       box-sizing: border-box;
       margin-left: 0;
+      margin-top: 0.3rem;
+      margin-bottom: 0.7rem;
+      width: 100%;
+      text-align: left;
     }
     .domain-available {
       background: #e6f9e6;
@@ -208,8 +212,8 @@
       <div class="frappe-input-row">
         <input type="text" name="subdomain" id="subdomain" class="frappe-input subdomain" placeholder="yourcompany" pattern="^[a-z0-9-]+$" title="Only lowercase letters, numbers, and hyphens allowed" required>
         <span class="domain-suffix">.preciseerp.com</span>
-        <span id="domainStatus" class="domain-availability"></span>
       </div>
+      <div id="domainStatus" class="domain-availability" style="margin-top:0.3rem; margin-bottom:0.7rem; width:100%;"></div>
 
       <label class="frappe-label">Administrator Password:</label>
       <input type="password" name="admin_password" id="admin_password" class="frappe-input" placeholder="At least 8 characters" autocomplete="new-password" required minlength="8">
