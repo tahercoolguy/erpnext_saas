@@ -8,7 +8,7 @@ def provision_site(domain):
         # Step 1: Create a new site
         print("[STEP 1] Creating new site...")
         result = subprocess.run([
-            "docker", "exec", "backend",
+            "docker", "exec", "erpnext_saas-backend-1",
             "bench", "new-site", domain,
             "--no-mariadb-socket",
             "--admin-password", "admin",
@@ -19,35 +19,47 @@ def provision_site(domain):
         print(result.stdout)
 
     except subprocess.CalledProcessError as e:
-        print("[ERROR] Failed to create new site.")
-        print("[STDOUT]:", e.stdout)
-        print("[STDERR]:", e.stderr)
-        return False
+        msg = f"[ERROR] Failed to create new site. STDOUT: {e.stdout}\nSTDERR: {e.stderr}"
+        print(msg)
+        return False, msg
     except FileNotFoundError:
-        print("[FATAL] Docker or Bench not found. Is Docker installed and running?")
-        return False
+        msg = "[FATAL] Docker or Bench not found. Is Docker installed and running?"
+        print(msg)
+        return False, msg
     except Exception as e:
-        print(f"[UNEXPECTED ERROR] {e}")
-        return False
+        msg = f"[UNEXPECTED ERROR] {e}"
+        print(msg)
+        return False, msg
 
     try:
         # Step 2: Install ERPNext on the new site
         print("\n[STEP 2] Installing ERPNext app...")
         result = subprocess.run([
-            "docker", "exec", "backend",
+            "docker", "exec", "erpnext_saas-backend-1",
             "bench", "--site", domain, "install-app", "erpnext"
         ], check=True, capture_output=True, text=True)
         print("[OK] ERPNext installed on site.")
         print(result.stdout)
 
     except subprocess.CalledProcessError as e:
-        print("[ERROR] Failed to install ERPNext on site.")
-        print("[STDOUT]:", e.stdout)
-        print("[STDERR]:", e.stderr)
-        return False
+        msg = f"[ERROR] Failed to install ERPNext on site. STDOUT: {e.stdout}\nSTDERR: {e.stderr}"
+        print(msg)
+        return False, msg
     except Exception as e:
-        print(f"[UNEXPECTED ERROR] {e}")
-        return False
+        msg = f"[UNEXPECTED ERROR] {e}"
+        print(msg)
+        return False, msg
 
-    print(f"\n[SUCCESS] Provisioned site '{domain}' with ERPNext.\n")
-    return True
+    print(f"\n[VERIFY] Checking if site directory exists for '{domain}'...")
+    result = subprocess.run([
+        "docker", "exec", "erpnext_saas-backend-1",
+        "test", "-f", f"/home/frappe/frappe-bench/sites/{domain}/site_config.json"
+    ], capture_output=True, text=True)
+    if result.returncode == 0:
+        msg = f"[SUCCESS] Site '{domain}' was created successfully and is ready to use."
+        print(msg)
+        return True, msg
+    else:
+        msg = f"[ERROR] Site directory or site_config.json not found for '{domain}'."
+        print(msg)
+        return False, msg

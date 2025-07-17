@@ -20,16 +20,24 @@ def check_domain(request):
 
 def register_company(request):
     if request.method == 'POST':
+        print("[LOG] Received POST data:", request.POST)
         name = request.POST.get('name')
         subdomain = request.POST.get('subdomain', '').strip().lower()
+        print(f"[LOG] Parsed name: {name}, subdomain: {subdomain}")
         if not name or not subdomain:
+            print("[LOG] Missing fields in registration form.")
             return JsonResponse({'success': False, 'error': 'Missing fields'}, status=400)
         domain = f"{subdomain}.preciseerp.com"
+        print(f"[LOG] Constructed domain: {domain}")
         if Company.objects.filter(domain=domain).exists():
+            print(f"[LOG] Domain already taken: {domain}")
             return JsonResponse({'success': False, 'error': 'Domain already taken'}, status=400)
         company = Company.objects.create(name=name, domain=domain)
-        success = provision_site(domain)
+        print(f"[LOG] Created company object: {company}")
+        success, message = provision_site(domain)
+        print(f"[LOG] Provision site result: success={success}, message={message}")
         company.status = 'created' if success else 'failed'
         company.save()
-        return JsonResponse({'success': success})
+        print(f"[LOG] Company status updated to: {company.status}")
+        return JsonResponse({'success': success, 'message': message})
     return render(request, 'register.html')
