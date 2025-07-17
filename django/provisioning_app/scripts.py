@@ -12,8 +12,7 @@ def provision_site(domain):
             "bench", "new-site", domain,
             "--no-mariadb-socket",
             "--admin-password", "admin",
-            "--mariadb-root-password", "admin",
-            "--install-app", "frappe"
+            "--mariadb-root-password", "admin"
         ], check=True, capture_output=True, text=True)
         print("[OK] Site created successfully.")
         print(result.stdout)
