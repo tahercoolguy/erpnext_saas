@@ -113,6 +113,15 @@
       <input type="text" name="subdomain" id="subdomain" placeholder="yourcompany" pattern="^[a-z0-9-]+$" title="Only lowercase letters, numbers, and hyphens allowed" required>
       <div class="domain-preview" id="domainPreview">.preciseerp.com</div>
 
+      <label>Select Apps to Install:</label><br>
+      <div id="appsSection" style="margin-bottom: 1.2rem;">
+        <label><input type="checkbox" name="apps" value="erpnext" checked> ERPNext</label><br>
+        <label><input type="checkbox" name="apps" value="hrms"> Frappe HR</label><br>
+        <label><input type="checkbox" name="apps" value="healthcare"> Healthcare</label><br>
+        <label><input type="checkbox" name="apps" value="education"> Education</label><br>
+        <label><input type="checkbox" name="apps" value="crm"> CRM</label><br>
+      </div>
+
       <button type="submit" class="btn" id="registerBtn">Register</button>
       <div class="loader" id="loader"></div>
       <div class="message error" id="errorMsg"></div>
@@ -194,6 +203,12 @@
         showMessage('error', 'Subdomain can only contain lowercase letters, numbers, and hyphens.');
         return;
       }
+      // Collect selected apps
+      const appCheckboxes = document.querySelectorAll('input[name="apps"]:checked');
+      if (appCheckboxes.length === 0) {
+        showMessage('error', 'Please select at least one app to install.');
+        return;
+      }
       showLoader(true);
       fetch('/check-domain/?subdomain=' + encodeURIComponent(subdomain))
         .then(res => res.json())
@@ -205,6 +220,9 @@
           }
           // Proceed to register
           const formData = new FormData(registerForm);
+          // Add selected apps explicitly (for browsers that don't send multiple values by default)
+          formData.delete('apps');
+          appCheckboxes.forEach(cb => formData.append('apps', cb.value));
           fetch('', {
             method: 'POST',
             headers: {

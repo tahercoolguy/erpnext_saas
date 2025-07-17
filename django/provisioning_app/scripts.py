@@ -1,7 +1,7 @@
 import subprocess
 import sys
 
-def provision_site(domain):
+def provision_site(domain, apps):
     print(f"\n[INFO] Starting site provisioning for: {domain}\n")
 
     try:
@@ -30,24 +30,24 @@ def provision_site(domain):
         print(msg)
         return False, msg
 
-    try:
-        # Step 2: Install ERPNext on the new site
-        print("\n[STEP 2] Installing ERPNext app...")
-        result = subprocess.run([
-            "docker", "exec", "erpnext_saas_backend_1",
-            "bench", "--site", domain, "install-app", "erpnext"
-        ], check=True, capture_output=True, text=True)
-        print("[OK] ERPNext installed on site.")
-        print(result.stdout)
-
-    except subprocess.CalledProcessError as e:
-        msg = f"[ERROR] Failed to install ERPNext on site. STDOUT: {e.stdout}\nSTDERR: {e.stderr}"
-        print(msg)
-        return False, msg
-    except Exception as e:
-        msg = f"[UNEXPECTED ERROR] {e}"
-        print(msg)
-        return False, msg
+    # Step 2: Install selected apps
+    for app in apps:
+        try:
+            print(f"\n[STEP 2] Installing app '{app}' on site...")
+            result = subprocess.run([
+                "docker", "exec", "erpnext_saas_backend_1",
+                "bench", "--site", domain, "install-app", app
+            ], check=True, capture_output=True, text=True)
+            print(f"[OK] App '{app}' installed on site.")
+            print(result.stdout)
+        except subprocess.CalledProcessError as e:
+            msg = f"[ERROR] Failed to install app '{app}' on site. STDOUT: {e.stdout}\nSTDERR: {e.stderr}"
+            print(msg)
+            return False, msg
+        except Exception as e:
+            msg = f"[UNEXPECTED ERROR] {e}"
+            print(msg)
+            return False, msg
 
     print(f"\n[VERIFY] Checking if site directory exists for '{domain}'...")
     result = subprocess.run([

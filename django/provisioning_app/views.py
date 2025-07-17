@@ -23,8 +23,10 @@ def register_company(request):
         print("[LOG] Received POST data:", request.POST)
         name = request.POST.get('name')
         subdomain = request.POST.get('subdomain', '').strip().lower()
-        print(f"[LOG] Parsed name: {name}, subdomain: {subdomain}")
-        if not name or not subdomain:
+        # Accept multiple apps (as list)
+        apps = request.POST.getlist('apps')
+        print(f"[LOG] Parsed name: {name}, subdomain: {subdomain}, apps: {apps}")
+        if not name or not subdomain or not apps:
             print("[LOG] Missing fields in registration form.")
             return JsonResponse({'success': False, 'error': 'Missing fields'}, status=400)
         domain = f"{subdomain}.preciseerp.com"
@@ -34,7 +36,7 @@ def register_company(request):
             return JsonResponse({'success': False, 'error': 'Domain already taken'}, status=400)
         company = Company.objects.create(name=name, domain=domain)
         print(f"[LOG] Created company object: {company}")
-        success, message = provision_site(domain)
+        success, message = provision_site(domain, apps)
         print(f"[LOG] Provision site result: success={success}, message={message}")
         company.status = 'created' if success else 'failed'
         company.save()
