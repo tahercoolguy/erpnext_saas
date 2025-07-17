@@ -8,7 +8,7 @@ def provision_site(domain):
         # Step 1: Create a new site
         print("[STEP 1] Creating new site...")
         result = subprocess.run([
-            "docker", "exec", "erpnext_saas-backend-1",
+            "docker", "exec", "erpnext_saas_backend_1",
             "bench", "new-site", domain,
             "--no-mariadb-socket",
             "--admin-password", "admin",
@@ -35,7 +35,7 @@ def provision_site(domain):
         # Step 2: Install ERPNext on the new site
         print("\n[STEP 2] Installing ERPNext app...")
         result = subprocess.run([
-            "docker", "exec", "erpnext_saas-backend-1",
+            "docker", "exec", "erpnext_saas_backend_1",
             "bench", "--site", domain, "install-app", "erpnext"
         ], check=True, capture_output=True, text=True)
         print("[OK] ERPNext installed on site.")
@@ -52,7 +52,7 @@ def provision_site(domain):
 
     print(f"\n[VERIFY] Checking if site directory exists for '{domain}'...")
     result = subprocess.run([
-        "docker", "exec", "erpnext_saas-backend-1",
+        "docker", "exec", "erpnext_saas_backend_1",
         "test", "-f", f"/home/frappe/frappe-bench/sites/{domain}/site_config.json"
     ], capture_output=True, text=True)
     if result.returncode == 0:
