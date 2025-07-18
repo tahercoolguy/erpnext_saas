@@ -1,5 +1,7 @@
 import subprocess
 import sys
+import requests
+import time
 
 # Mapping of app names to their git URLs
 APP_GIT_URLS = {
@@ -18,19 +20,14 @@ def ensure_app_present(app):
     ])
     if result.returncode != 0:
         # App not present, get it using bench get-app
-        if app == "hrms":
-            subprocess.run([
-                "docker", "exec", "erpnext_saas_backend_1",
-                "bench", "get-app", "hrms"
-            ], check=True)
-        else:
-            git_url = APP_GIT_URLS.get(app)
-            if not git_url:
-                raise Exception(f"Git URL for app '{app}' not found in mapping.")
-            subprocess.run([
-                "docker", "exec", "erpnext_saas_backend_1",
-                "bench", "get-app", app, git_url
-            ], check=True)
+        git_url = APP_GIT_URLS.get(app)
+        if not git_url:
+            raise Exception(f"Git URL for app '{app}' not found in mapping.")
+        subprocess.run([
+            "docker", "exec", "erpnext_saas_backend_1",
+            "bench", "get-app", app, git_url
+        ], check=True)
+            
 
 def provision_site(domain, apps, admin_password):
     print(f"\n[INFO] Starting site provisioning for: {domain}\n")
@@ -91,8 +88,23 @@ def provision_site(domain, apps, admin_password):
     if result.returncode == 0:
         msg = f"[SUCCESS] Site '{domain}' was created successfully and is ready to use."
         print(msg)
+        trigger_https(domain)
         return True, msg
     else:
         msg = f"[ERROR] Site directory or site_config.json not found for '{domain}'."
         print(msg)
         return False, msg
+
+def trigger_https(domain, retries=5, delay=5):
+    url = f"https://{domain}"
+    for attempt in range(retries):
+        try:
+            print(f"[INFO] Triggering HTTPS request to {url} (attempt {attempt+1})...")
+            response = requests.get(url, timeout=10, verify=False)  # verify=False to ignore SSL errors on first try
+            print(f"[INFO] HTTPS request sent. Status code: {response.status_code}")
+            return True
+        except Exception as e:
+            print(f"[WARN] HTTPS request failed: {e}. Retrying in {delay} seconds...")
+            time.sleep(delay)
+    print("[ERROR] Could not trigger HTTPS request after several attempts.")
+    return False
