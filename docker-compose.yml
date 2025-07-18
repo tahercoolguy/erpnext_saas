@@ -15,6 +15,7 @@ services:
       - GODADDY_API_KEY=dLDSDHifWf2R_53rEtwGTra8TeBneR8Exnp
       - GODADDY_API_SECRET=4VGjR53NUc8CzARJpNTGdP
     volumes:
+      - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
       - "./traefik/acme.json:/letsencrypt/acme.json"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
