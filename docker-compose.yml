@@ -118,8 +118,9 @@ services:
       - "traefik.http.routers.frontend.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
       - "traefik.http.routers.frontend.priority=10"
       - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      # - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.services.frontend.loadbalancer.server.port=8080"
 
   websocket:
