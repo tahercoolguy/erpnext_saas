@@ -120,7 +120,7 @@ services:
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=letsEncryptDns"
       - "traefik.http.services.frontend.loadbalancer.server.port=8080"
-      - "traefik.http.routers.frontend.tls.domains=main:*.preciseerp.com"
+      - "traefik.http.routers.frontend.tls.domains[0].main=*.preciseerp.com"
       
 
   websocket:
