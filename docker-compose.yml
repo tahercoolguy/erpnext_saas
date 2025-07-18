@@ -101,7 +101,6 @@ services:
     command: nginx-entrypoint.sh
     environment:
       BACKEND: backend:8000
-      # FRAPPE_SITE_NAME_HEADER: customer1.preciseerp.com
       SOCKETIO: websocket:9000
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
@@ -115,13 +114,21 @@ services:
       - "8080:8080"
     labels:
       - "traefik.enable=true"
+      # HTTP router for HTTP-01 challenge and initial traffic
       - "traefik.http.routers.frontend.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
-      - "traefik.http.routers.frontend.entrypoints=web,websecure"
+      - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.domains[0].main=preciseerp.com"
-      - "traefik.http.routers.frontend.tls.domains[0].main=*.preciseerp.com"
+      - "traefik.http.routers.frontend.priority=10"
       - "traefik.http.routers.frontend.service=frontend"
+      # HTTPS router for secure traffic
+      - "traefik.http.routers.frontend-https.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
+      - "traefik.http.routers.frontend-https.entrypoints=websecure"
+      - "traefik.http.routers.frontend-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frontend-https.tls=true"
+      - "traefik.http.routers.frontend-https.priority=10"
+      - "traefik.http.routers.frontend-https.service=frontend"
+      # Optional: Redirect HTTP to HTTPS after cert is issued
       - "traefik.http.routers.frontend.middlewares=redirect-to-https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       - "traefik.http.services.frontend.loadbalancer.server.port=8080"
