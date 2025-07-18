@@ -9,20 +9,17 @@ providers:
     exposedByDefault: false
 
 certificatesResolvers:
-  letsEncryptHttp:
-    acme:
-      email: taher.badnawarwala@gmail.com
-      storage: acme.json
-      httpChallenge:
-        entryPoint: web
-
-        
   letsEncryptDns:
     acme:
       email: taher.badnawarwala@gmail.com
       storage: acme.json
       dnsChallenge:
         provider: godaddy
-      domains:
-        - main: "*.preciseerp.com"
+
+  letsEncryptHttp:
+    acme:
+      email: taher.badnawarwala@gmail.com
+      storage: acme.json
+      httpChallenge:
+        entryPoint: web
       
