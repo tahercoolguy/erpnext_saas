@@ -18,13 +18,19 @@ def ensure_app_present(app):
     ])
     if result.returncode != 0:
         # App not present, get it using bench get-app
-        git_url = APP_GIT_URLS.get(app)
-        if not git_url:
-            raise Exception(f"Git URL for app '{app}' not found in mapping.")
-        subprocess.run([
-            "docker", "exec", "erpnext_saas_backend_1",
-            "bench", "get-app", app, git_url
-        ], check=True)
+        if app == "hrms":
+            subprocess.run([
+                "docker", "exec", "erpnext_saas_backend_1",
+                "bench", "get-app", "hrms"
+            ], check=True)
+        else:
+            git_url = APP_GIT_URLS.get(app)
+            if not git_url:
+                raise Exception(f"Git URL for app '{app}' not found in mapping.")
+            subprocess.run([
+                "docker", "exec", "erpnext_saas_backend_1",
+                "bench", "get-app", app, git_url
+            ], check=True)
 
 def provision_site(domain, apps, admin_password):
     print(f"\n[INFO] Starting site provisioning for: {domain}\n")
