@@ -114,17 +114,17 @@ services:
     ports:
       - "8080:8080"
     labels:
-    - "traefik.enable=true"
-    - "traefik.http.routers.frontend.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
-    - "traefik.http.routers.frontend.entrypoints=web,websecure"
-    - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-    - "traefik.http.routers.frontend.tls=true"
-    - "traefik.http.routers.frontend.tls.domains[0].main=checker.preciseerp.com"
-    - "traefik.http.routers.frontend.tls.domains[0].sans=*.preciseerp.com"
-    - "traefik.http.routers.frontend.service=frontend"
-    - "traefik.http.routers.frontend.middlewares=redirect-to-https"
-    - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-    - "traefik.http.services.frontend.loadbalancer.server.port=8080"
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
+      - "traefik.http.routers.frontend.entrypoints=web,websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.domains[0].main=checker.preciseerp.com"
+      - "traefik.http.routers.frontend.tls.domains[0].sans=*.preciseerp.com"
+      - "traefik.http.routers.frontend.service=frontend"
+      - "traefik.http.routers.frontend.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.services.frontend.loadbalancer.server.port=8080"
 
   websocket:
     image: frappe/erpnext:v15.69.2
