@@ -89,6 +89,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - apps:/home/frappe/frappe-bench/apps
     networks:
       - frappe_network
 
@@ -111,6 +112,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - apps:/home/frappe/frappe-bench/apps
     ports:
       - "8080:8080"
     labels:
@@ -219,6 +221,7 @@ volumes:
   logs:
   db-data:
   redis-queue-data:
+  apps:
 
 networks:
   frappe_network:
