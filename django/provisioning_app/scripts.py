@@ -66,8 +66,8 @@ def provision_site(domain, apps, admin_password):
         try:
             print(f"\n[STEP 2] Installing app '{app}' on site...")
             # Ensure the app is present before installing
-            if app != "erpnext":
-                ensure_app_present(app)
+            # if app != "erpnext":
+            #     ensure_app_present(app)
             result = subprocess.run([
                 "docker", "exec", "erpnext_saas_backend_1",
                 "bench", "--site", domain, "install-app", app
