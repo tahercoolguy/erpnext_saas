@@ -47,7 +47,7 @@ services:
       - "traefik.http.routers.django.rule=Host(`provision-1.preciseerp.com`)"
       - "traefik.http.routers.django.priority=20"
       - "traefik.http.routers.django.entrypoints=websecure"
-      - "traefik.http.routers.django.tls.certresolver=letsencrypt-http"
+      - "traefik.http.routers.django.tls.certresolver=letsEncryptHttp"
       - "traefik.http.routers.django.service=django-service"
       - "traefik.http.services.django-service.loadbalancer.server.port=8001"
     networks:
@@ -123,7 +123,7 @@ services:
       - "traefik.http.routers.frontend.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
       - "traefik.http.routers.frontend.priority=10"
       - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.frontend.tls.certresolver=letsEncryptDns"
       - "traefik.http.services.frontend.loadbalancer.server.port=8080"
 
   websocket:
@@ -212,8 +212,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.phpmyadmin.rule=Host(`dbadmin.preciseerp.com`)"
       - "traefik.http.routers.phpmyadmin.priority=15"
-      # - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
-      # - "traefik.http.routers.phpmyadmin.tls.certresolver=letsencrypt"
       - "traefik.http.routers.phpmyadmin.entrypoints=web"
       - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
 
