@@ -10,11 +10,16 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=godaddy"
       - "--certificatesresolvers.letsencrypt.acme.email=taher.badnawarwala@gmail.com"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      - GODADDY_API_KEY=dLDSDHifWf2R_53rEtwGTra8TeBneR8Exnp
+      - GODADDY_API_SECRET=4VGjR53NUc8CzARJpNTGdP
     volumes:
       - "./traefik/acme.json:/letsencrypt/acme.json"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
@@ -42,7 +47,7 @@ services:
       - "traefik.http.routers.django.rule=Host(`provision-1.preciseerp.com`)"
       - "traefik.http.routers.django.priority=20"
       - "traefik.http.routers.django.entrypoints=websecure"
-      - "traefik.http.routers.django.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.django.tls.certresolver=letsencrypt-http"
       - "traefik.http.routers.django.service=django-service"
       - "traefik.http.services.django-service.loadbalancer.server.port=8001"
     networks:
@@ -117,9 +122,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
       - "traefik.http.routers.frontend.priority=10"
-      # - "traefik.http.routers.frontend.entrypoints=websecure"
-      # - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt-dns"
       - "traefik.http.services.frontend.loadbalancer.server.port=8080"
 
   websocket:
