@@ -116,10 +116,10 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.preciseerp.com`)"
-      - "traefik.http.routers.frontend.entrypoints=web,websecure"
+      - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.domains[0].main=checker.preciseerp.com"
+      # - "traefik.http.routers.frontend.tls.domains[0].main=checker.preciseerp.com"
       - "traefik.http.routers.frontend.tls.domains[0].sans=*.preciseerp.com"
       - "traefik.http.routers.frontend.service=frontend"
       - "traefik.http.routers.frontend.middlewares=redirect-to-https"
