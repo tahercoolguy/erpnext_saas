@@ -26,7 +26,6 @@ services:
     volumes:
       - ./django:/app
       - sites:/home/frappe/frappe-bench/sites
-      - apps:/home/frappe/frappe-bench/apps
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - backend
@@ -89,7 +88,6 @@ services:
       MARIADB_ROOT_PASSWORD: admin
     volumes:
       - sites:/home/frappe/frappe-bench/sites
-      - apps:/home/frappe/frappe-bench/apps
       - logs:/home/frappe/frappe-bench/logs
     networks:
       - frappe_network
@@ -113,7 +111,6 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
-      - apps:/home/frappe/frappe-bench/apps
     ports:
       - "8080:8080"
     labels:
@@ -133,7 +130,6 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
-      - apps:/home/frappe/frappe-bench/apps
     networks:
       - frappe_network
     labels:
@@ -145,7 +141,6 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
-      - apps:/home/frappe/frappe-bench/apps
     networks:
       - frappe_network
     labels:
@@ -157,7 +152,6 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
-      - apps:/home/frappe/frappe-bench/apps
     networks:
       - frappe_network
     labels:
@@ -169,7 +163,6 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
-      - apps:/home/frappe/frappe-bench/apps
     networks:
       - frappe_network
     labels:
@@ -200,7 +193,6 @@ services:
   #   volumes:
   #     - sites:/home/frappe/frappe-bench/sites
   #     - logs:/home/frappe/frappe-bench/logs
-  #     - apps:/home/frappe/frappe-bench/apps
 
   phpmyadmin:
     image: phpmyadmin:5.2
@@ -227,7 +219,6 @@ volumes:
   logs:
   db-data:
   redis-queue-data:
-  apps:
 
 networks:
   frappe_network:
